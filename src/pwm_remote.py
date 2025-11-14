@@ -21,14 +21,8 @@ pwm2.start(0)
 dy=float(input("Duty:"))
 
 def forward():
-    GPIO.output(IN1, GPIO.HIGH)
-    GPIO.output(IN2, GPIO.HIGH)
-    pwm1.ChangeDutyCycle(dy)
-    pwm2.ChangeDutyCycle(dy)
-
-def backward():
     GPIO.output(IN1, GPIO.LOW)
-    GPIO.output(IN2, GPIO.LOW)
+    GPIO.output(IN2, GPIO.HIGH)
     pwm1.ChangeDutyCycle(dy)
     pwm2.ChangeDutyCycle(dy)
 
@@ -42,8 +36,6 @@ try:
 
         if cmd == "f":
             forward()
-        elif cmd == "b":
-            backward()
         elif cmd == "s":
             stop()
         elif cmd == "q":
