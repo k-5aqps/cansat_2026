@@ -14,7 +14,7 @@ class detect ():
 
     def dtc_img(self):
 
-        img = cv2.imread(r"D:\program\python\contest\OneDrive_1_2025-9-30\gyakou__1280_720\3.0m_20250917_143937.jpg")#"/home/pi/image/2.jpg"
+        img = cv2.imread(r"D:/program/2025_python/cansat_2026/img/9_17_zyunkou/2.0m_20250917_142113.jpg")#"/home/pi/image/2.jpg"
 
         img_yuv = cv2.cvtColor(img, cv2.COLOR_BGR2YUV) # RGB => YUV(YCbCr)
         clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8)) # claheオブジェクトを生成
@@ -45,7 +45,7 @@ class detect ():
         else:
             print("検出不可")
 
-        path=r"D:/program/2025_python/cansat_2026/img"#"/home/pi/"
+        path=r"D:/program/2025_python/cansat_2026/img_dtc/"#"/home/pi/"
 
         self.cnt+=1
 
