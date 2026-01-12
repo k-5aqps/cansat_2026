@@ -32,7 +32,7 @@ def stop():
 
 try:
     while True:
-        cmd = input("Command [f: forward, b: backward, s: stop, q: quit] > ").strip().lower()
+        cmd = input("Command [f: forward, s: stop, q: quit] > ").strip().lower()
 
         if cmd == "f":
             forward()
