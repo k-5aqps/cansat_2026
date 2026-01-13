@@ -17,7 +17,7 @@ def write(log,loglevel):
         logger.critical(f"{log}")
 
 def main():
-    log("k-5","ERROR")
+    write("k-5","ERROR")
 
 if __name__ == "__main__":
     main()
