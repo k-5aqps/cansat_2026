@@ -7,7 +7,7 @@ hight_color1=np.array([5,255,255])
 low_color2=np.array([170,50,50])# 赤色閾値2
 hight_color2=np.array([180,255,255])
 
-class detect ():
+class Detect ():
 
     def __init__(self):
         self.cnt = 0
@@ -55,7 +55,7 @@ class detect ():
         print("完了")
 
 def main():
-    detect_image=detect()
+    detect_image=Detect()
     # while(True):
     #     detect_image.dtc_img()
     #     time.sleep(1)
