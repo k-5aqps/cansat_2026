@@ -4,7 +4,7 @@ with open('logconfig.ini','r',encoding='utf-8') as f:
     logging.config.fileConfig(f)
 logger = logging.getLogger('root')
 
-def log(log,loglevel):
+def write(log,loglevel):
     if loglevel=="DEBUG":
         logger.debug(f"{log}")
     elif loglevel=="INFO":
