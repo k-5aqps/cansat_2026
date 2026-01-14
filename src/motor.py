@@ -59,8 +59,8 @@ def main():
     print("forward,right,left")
     try:
         while True:
-            direction =input("mode:")
-            motor.move(direction,3,100)
+            mode=input("mode:")
+            motor.move(mode,3,100)
     except KeyboardInterrupt:
         motor.cleanup()
 
