@@ -29,29 +29,36 @@ class MotorController:
 
         stop_time = time.time() + active_time
         while time.time() < stop_time:
-            self.right.ChangeDutyCycle(self.right_duty)
-            self.left.ChangeDutyCycle(self.left_duty)
+            self.pwm_right.ChangeDutyCycle(self.duty_right)
+            self.pwm_left.ChangeDutyCycle(self.duty_left)
 
-        self.right.ChangeDutyCycle(0)
-        self.left.ChangeDutyCycle(0)
+        self.pwm_right.ChangeDutyCycle(0)
+        self.pwm_left.ChangeDutyCycle(0)
         time.sleep(1)
 
     def dutycycle(self,mode,duty):
-        GPIO.output(self.in_left,  GPIO.HIGH)
+        GPIO.output(self.in_left,  GPIO.LOW)
         GPIO.output(self.in_right, GPIO.HIGH)
         if mode=="forward":
             self.duty_right=duty
             self.duty_left=duty
         elif mode=="right":
-            self.duty_right=duty*0.5
-            self.duty_left=duty
-        elif mode=="left":
             self.duty_right=duty
             self.duty_left=duty*0.5
+        elif mode=="left":
+            self.duty_right=duty*0.4
+            self.duty_left=duty
         else:
             self.duty_right=self.duty_left=0
 
+    def stop(self):
+        self.pwm_right.ChangeDutyCycle(0)
+        self.pwm_left.ChangeDutyCycle(0)
+        self.duty_left = 0
+        self.duty_right = 0
+
     def cleanup(self):
+        self.stop()
         GPIO.cleanup()
 
 def main():
@@ -60,7 +67,7 @@ def main():
     try:
         while True:
             mode=input("mode:")
-            motor.move(mode,3,100)
+            motor.move(mode,2,40)
     except KeyboardInterrupt:
         motor.cleanup()
 
