@@ -31,6 +31,7 @@ class MotorController:
         while time.time() < stop_time:
             self.pwm_right.ChangeDutyCycle(self.duty_right)
             self.pwm_left.ChangeDutyCycle(self.duty_left)
+            time.sleep(0.01)
 
         self.pwm_right.ChangeDutyCycle(0)
         self.pwm_left.ChangeDutyCycle(0)
@@ -51,14 +52,9 @@ class MotorController:
         else:
             self.duty_right=self.duty_left=0
 
-    def stop(self):
-        self.pwm_right.ChangeDutyCycle(0)
-        self.pwm_left.ChangeDutyCycle(0)
-        self.duty_left = 0
-        self.duty_right = 0
-
     def cleanup(self):
-        self.stop()
+        self.pwm_left.stop()
+        self.pwm_right.stop()
         GPIO.cleanup()
 
 def main():
