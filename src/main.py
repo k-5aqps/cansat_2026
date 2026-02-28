@@ -1,33 +1,35 @@
 import time
 
 from pyserial_t1 import GPSModule, calculate_target_distance_angle
-from motor import MotorController
+from motor_t1 import MotorController
 import logwrite
-
-
-# ====== 設定 ======
-GOAL_COORDINATE = {
-    "lat": 35.000000,   # ←ここをゴール緯度に変更
-    "lon": 135.000000   # ←ここをゴール経度に変更
-}
-
-TARGET_DISTANCE = 5  # 5m以内でゴール
-DUTY = 40            # モーター出力
-MOVE_TIME = 1        # 1回の動作時間（秒）
+import config
 
 
 def main():
 
     log = logwrite.MyLogging()
-    gps = GPSModule()
+
+    # ===== configから読み込み =====
+    GOAL_COORDINATE = {
+        "lat": config.GOAL_LAT,
+        "lon": config.GOAL_LON
+    }
+
+    TARGET_DISTANCE = config.TARGET_DISTANCE
+    DUTY = config.MOTOR_DUTY
+    MOVE_TIME = 2.0
+    SLEEP_TIME = config.SLEEP_TIME
+
+    gps = GPSModule()  # 将来GPS_PORT使うならここに指定
     motor = MotorController()
 
     previous_coordinate = None
 
     try:
-        log.write("===== START AUTONOMOUS MODE =====", "INFO")
-
+        log.write("GPS phase start", "INFO")
         gps.connect()
+        log.write("GPS connected", "INFO")
 
         while True:
 
@@ -37,23 +39,27 @@ def main():
                 log.write("GPS waiting...", "INFO")
                 continue
 
+            # 安全制御（config反映）
+            if satellites is not None and satellites < config.MIN_SATELLITES:
+                log.write("Satellite不足", "WARNING")
+                continue
+
             current_coordinate = {
                 "lat": lat,
                 "lon": lon
             }
 
             log.write(
-                f"Current: lat={lat:.6f}, lon={lon:.6f}, sat={satellites}",
+                f"Current: lat={lat:.6f}, lon={lon:.6f}, sat={satellites}, dop={dop}",
                 "INFO"
             )
+            log.forCSV(lat, lon)
 
-            # 初回は前進して向きを作る
             if previous_coordinate is None:
-                motor.move("forward", MOVE_TIME, DUTY)
+                motor.move("forward", 5, 70)
                 previous_coordinate = current_coordinate
                 continue
 
-            # ゴール方向計算
             result = calculate_target_distance_angle(
                 current_coordinate,
                 previous_coordinate,
@@ -66,34 +72,31 @@ def main():
             degree = result["deg"]
 
             log.write(
-                f"[NAV] dist={distance:.2f} m, deg={degree}, dir={direction}",
+                f"dir={direction},[NAV] dist={distance:.2f} m, deg={degree}",
                 "DEBUG"
             )
 
-            # ゴール判定
             if direction == "Immediate":
                 log.write("GOAL REACHED", "INFO")
                 motor.stop()
                 break
 
-            # モーター制御
             motor.move(direction, MOVE_TIME, DUTY)
 
-            # 前回座標更新
             previous_coordinate = current_coordinate
 
-            time.sleep(0.2)
+            time.sleep(SLEEP_TIME)
 
     except KeyboardInterrupt:
         log.write("Program stopped by user", "WARNING")
 
     except Exception as e:
-        log.write(f"Error: {e}", "CRITICAL")
+        log.write(f"GPSフェーズ異常終了: {e}", "CRITICAL")
 
     finally:
         motor.cleanup()
         gps.disconnect()
-        log.write("===== PROGRAM END =====", "INFO")
+        log.write("GPSフェーズ終了", "INFO")
 
 
 if __name__ == "__main__":
