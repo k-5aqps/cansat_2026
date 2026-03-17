@@ -1,5 +1,5 @@
-from picamera2_t1 import CameraModule
-from img_dtc_t1 import Detect
+from picamera2 import CameraModule
+from img_dtc import Detect
 from motor_t1 import MotorController
 import config
 import time
