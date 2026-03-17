@@ -34,6 +34,18 @@ class MotorController:
     def move(self, mode, active_time, duty):
         self.dutycycle(mode, duty)
 
+        bs_time=time.time()
+        while time.time()-bs_time<0.5:
+            if mode=="forward":
+                bs_duty=int(75)
+
+                self.pi.write(self.in_left,0)
+                self.pi.write(self.in_right,0)
+
+                self.pi.set_PWM_dutycycle(self.ena_right,bs_duty*0.95)
+                self.pi.set_PWM_dutycycle(self.ena_left,bs_duty)
+
+
         stop_time = time.time() + active_time
         while time.time() < stop_time:
             self.pi.set_PWM_dutycycle(self.ena_right, self.duty_right)
@@ -41,15 +53,14 @@ class MotorController:
             time.sleep(0.01)
 
         start_time=time.time()
-
-        while time.time()-start_time<1:
+        while time.time()-start_time<0.75:
             if mode == "forward":
                 boost_duty = int(75)
 
                 self.pi.write(self.in_left, 0)
                 self.pi.write(self.in_right, 0)
 
-                self.pi.set_PWM_dutycycle(self.ena_right, boost_duty)
+                self.pi.set_PWM_dutycycle(self.ena_right, boost_duty*0.95)
                 self.pi.set_PWM_dutycycle(self.ena_left, boost_duty)
 
         self.stop()
@@ -63,13 +74,22 @@ class MotorController:
         duty = int(duty * 255 / 100)
 
         if mode == "forward":
-            self.duty_right = duty
+            self.duty_right = duty*0.95
             self.duty_left = duty
         elif mode == "right":
             self.duty_right = duty
-            self.duty_left = int(duty * 0.8)
+            self.duty_left = int(duty * 0.6)
         elif mode == "left":
-            self.duty_right = int(duty * 0.8)
+            self.duty_right = int(duty * 0.4)
+            self.duty_left = duty
+        elif mode == "not find":
+            self.duty_right = duty*0.4
+            self.duty_left = duty*0.7
+        elif mode == "back":   # ←追加
+            self.pi.write(self.in_left, 1)
+            self.pi.write(self.in_right, 1)
+
+            self.duty_right = duty * 0.95
             self.duty_left = duty
         else:
             self.duty_right = 0
@@ -91,7 +111,9 @@ def main():
     try:
         while True:
             mode = input("mode:")
-            motor.move(mode, 3, 50)
+            ac_time=float(input("time:"))
+            duty_us=int(input("duty:"))
+            motor.move(mode, ac_time,duty_us)
 
     except KeyboardInterrupt:
         print("終了")
