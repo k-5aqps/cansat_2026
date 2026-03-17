@@ -2,9 +2,9 @@ import cv2
 import numpy as np
 #import time
 
-low_color1=np.array([0,50,50]) # 赤色閾値1
+low_color1=np.array([0,80,50]) # 赤色閾値1
 hight_color1=np.array([5,255,255])
-low_color2=np.array([170,50,50])# 赤色閾値2
+low_color2=np.array([170,80,50])# 赤色閾値2
 hight_color2=np.array([180,255,255])
 
 class Detect ():
@@ -12,10 +12,10 @@ class Detect ():
     def __init__(self):
         self.cnt = 0
 
-    def dtc_img(self,image):
+    def dtc_img(self):#image,img_num
 
-        #img = cv2.imread(r"/home/pi/cansat_2026/img/9_17_zyunkou/20m_20250917_141312.jpg")#r"/home/pi/image/2.jpg"
-        img=image
+        img = cv2.imread(f"D:/program/2025_python/cansat_2026/img/9_17_gyakou/11m.jpg")#r"/home/pi/image/2.jpg"
+        #img=image
 
         img_yuv = cv2.cvtColor(img, cv2.COLOR_BGR2YUV) # RGB => YUV(YCbCr)
         clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8)) # claheオブジェクトを生成
@@ -33,6 +33,17 @@ class Detect ():
 
         # 輪郭を取得
         contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+        if len(contours) == 0:
+            print("検出不可（輪郭なし）")
+            path = r"D:/program/2025_python/cansat_2026/img_dtc/"
+            #path = r"/home/pi/cansat_2026/img_dtc/"
+            self.cnt+=1
+            #cv2.imwrite(path+f"failed_None_{img_num}m.jpg", masked_img)
+            cv2.imwrite(path+str(self.cnt)+"_original.jpg",img)
+            cv2.imwrite(path+str(self.cnt)+"_result.jpg",masked_img)
+            return
+
         largest_contour = max(contours, key=cv2.contourArea)
         area=cv2.contourArea(largest_contour)
 
@@ -45,41 +56,53 @@ class Detect ():
         cv2.circle(masked_img,(vertex,y),5,(255,20,147),1)
         #print(((x+w)+x)/2)
 
-        if area<550:
-            #print("検出不可")
-            path=r"/home/pi/cansat_2026/img/test_dtc/"#r"D:/program/2025_python/cansat_2026/img_dtc/"
+        if area<400:
+            print("検出不可")
+            path=r"D:/program/2025_python/cansat_2026/img_dtc/"
             self.cnt+=1
             cv2.imwrite(path+str(self.cnt)+"_original.jpg",img)
+            #cv2.imwrite(path+f"failed_{img_num}m.jpg",masked_img)
             cv2.imwrite(path+str(self.cnt)+"_result.jpg",masked_img)
             return
 
 
-        path=r"/home/pi/cansat_2026/img/test_dtc/"#r"D:/program/2025_python/cansat_2026/img_dtc/"
+        path=r"D:/program/2025_python/cansat_2026/img_dtc/"#r"/home/pi/cansat_2026/img/test_dtc/"
 
         self.cnt+=1
 
         cv2.imwrite(path+str(self.cnt)+"_original.jpg",img)
         cv2.imwrite(path+str(self.cnt)+"_result.jpg",masked_img)
 
-        print("画像処理&保存完了")
+        #print("画像処理&保存完了")
 
         area_ratio=area/(1280*720)
         if area_ratio>0.7:
-            return "end"
+            #cv2.imwrite(path+f"goal_{img_num}m.jpg",masked_img)
+            print("goal")
+            return
+            #return "end"
 
         if 0<vertex<426:
-            return "left"
+            #cv2.imwrite(path+f"left_{img_num}m.jpg",masked_img)
+            print("left")
+            #return "left"
         elif 426<=vertex<853:
-            return "forward"
+            #cv2.imwrite(path+f"forward_{img_num}m.jpg",masked_img)
+            print("forward")
+            #return "forward"
         elif 853<=vertex<1280:
-            return "right"
+            #cv2.imwrite(path+f"right_{img_num}m.jpg",masked_img)
+            print("right")
+            #return "right"
 
 def main():
     detect_image=Detect()
-    # while(True):
-    #     detect_image.dtc_img()
-    #     time.sleep(1)
     detect_image.dtc_img()
+    # numbers = [0.0 ,0.5 ,1.0 ,1.5 ,2.0 ,2.5 ,3.0 ,3.5 ,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]
+
+    # for num in numbers:
+    #     detect_image.dtc_img(num)
+    #     print("完了")
 
 if __name__ == '__main__':
     main()
