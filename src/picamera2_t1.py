@@ -32,7 +32,16 @@ class CameraModule:
 
 def main():
     camera = CameraModule()
-    camera.cap()
+    try:
+        while True:
+            camera.cap()
+            a=int(input("もう一度:1、終了:ctrl+c"))
+            if a==1:
+                continue
+    except KeyboardInterrupt as e:
+        print(e)
+    finally:
+        camera.end()
 
 if __name__=="__main__":
     main()
