@@ -18,7 +18,7 @@ def main():
 
     TARGET_DISTANCE = config.TARGET_DISTANCE
     DUTY = config.MOTOR_DUTY
-    MOVE_TIME = 2.0
+    MOVE_TIME = 4.0
     SLEEP_TIME = config.SLEEP_TIME
 
     gps = GPSModule()  # 将来GPS_PORT使うならここに指定
